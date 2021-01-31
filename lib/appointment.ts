@@ -6,13 +6,13 @@ import { mapToResponse } from "./mapper";
 import { Appointment, BooklyAppointment, Customer, Service } from "./types";
 import { formatJSON, normalize } from "./util";
 
-const LAST_IMPORTED_SINCE = { days: 3 };
+const LAST_IMPORTED_SINCE = { minutes: 10 };
 
 const sinceLastImport = (appointment: BooklyAppointment) => {
   const createdAt = new Date(appointment.created_at);
   const lastImportedAt = sub(new Date(), LAST_IMPORTED_SINCE);
   return isAfter(createdAt, lastImportedAt);
-}
+};
 
 export const getLatestAppointments = async (): Promise<Appointment[]> => {
   const options = getOptions();
