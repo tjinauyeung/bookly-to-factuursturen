@@ -70,7 +70,7 @@ const getAuth = (username, password) => {
   return auth;
 };
 
-module.exports = (req, res) => {
+module.exports = async (req, res) => {
   try {
     const opts = {
       headers: {
