@@ -1,107 +1,101 @@
-import express from "express";
-import got from "got";
+const got = require('got');
+const { isAfter, sub } = require('date-fns');
 import { isAfter, sub } from "date-fns";
 
-const server = express();
+// interface Appointment {
+//   id: string;
+//   created_at: string;
+//   updated_at: string;
+//   start_date: string;
+//   end_date: string;
+//   service_id: any;
+//   customer_appointment: {
+//     customer_id: string;
+//   };
+//   staff_id: {
+//     id: string;
+//     full_name: string;
+//     email: string;
+//   };
+// }
 
-server.use(express.urlencoded());
+// interface CustomersNormalized {
+//   [id: string]: Customer;
+// }
 
-const port = 3000;
+// interface ServicesNormalized {
+//   [id: string]: Service;
+// }
 
-interface Appointment {
-  id: string;
-  created_at: string;
-  updated_at: string;
-  start_date: string;
-  end_date: string;
-  service_id: any;
-  customer_appointment: {
-    customer_id: string;
-  };
-  staff_id: {
-    id: string;
-    full_name: string;
-    email: string;
-  };
-}
+// interface Customer {
+//   id: string;
+//   full_name: string;
+//   first_name: string;
+//   last_name: string;
+//   phone: string;
+//   email: string;
+//   created_at: string;
+// }
 
-interface CustomersNormalized {
-  [id: string]: Customer;
-}
-
-interface ServicesNormalized {
-  [id: string]: Service;
-}
-
-interface Customer {
-  id: string;
-  full_name: string;
-  first_name: string;
-  last_name: string;
-  phone: string;
-  email: string;
-  created_at: string;
-}
-
-interface Service {
-  id: string;
-  category_id: {
-    id: string;
-    name: string; // address
-  };
-  duration: string;
-  type: string;
-  title: string;
-  price: string;
-}
+// interface Service {
+//   id: string;
+//   category_id: {
+//     id: string;
+//     name: string; // address
+//   };
+//   duration: string;
+//   type: string;
+//   title: string;
+//   price: string;
+// }
 
 const baseUri = "https://rijbewijskeuringholland.nl/wp-json/wp/v2";
 const endpoints = {
   appointments: () => baseUri + "/wpo_bookly_appointments",
-  customer: (id: string) => baseUri + `/wpo_bookly_customers/${id}`,
+  customer: (id) => baseUri + `/wpo_bookly_customers/${id}`,
   services: () => baseUri + `/wpo_bookly_services`,
 };
 
 const CRONJOB_INTERVAL_IN_MINUTES = 60;
 
-const fromYesterday = (appointment: any) =>
+const fromYesterday = (appointment) =>
   isAfter(
     new Date(appointment.created_at),
     sub(new Date(), { days: 3 })
   );
 
-const getAuth = (username: string, password: string) => {
+const getAuth = (username, password) => {
   const base64 = Buffer.from(username + ":" + password).toString("base64");
   const auth = "Basic " + base64;
   return auth;
 };
 
-server.get("/", async (req, res, next) => {
+module.exports = (req, res) => {
   try {
     const opts = {
       headers: {
         Authorization: getAuth("tjinauyeung@gmail.com", "Kwispelen1!"),
       },
       responseType: "json",
-    } as any;
+    };
 
     const resp = await got(endpoints.appointments(), opts);
-    const body = resp.body as any;
-    const appointments: Appointment[] = body.filter(fromYesterday);
+    const body = resp.body;
+    const appointments = body.filter(fromYesterday);
 
     console.log(`appointments since yesterday:`, JSON.stringify(appointments));
 
-    const customers: Customer[] = await Promise.all(
+    const customers = await Promise.all(
       appointments
         .map((appointment) => appointment.customer_appointment.customer_id)
         .map((id) =>
-          got(endpoints.customer(id), opts).then((res) => res.body as any)
+          got(endpoints.customer(id), opts).then((res) => res.body)
         )
     );
 
     const services = (await got(endpoints.services(), opts).then(
       (res) => res.body
-    )) as Service[];
+    ));
 
     console.log(
       `customers belonging to appointments requested:`,
@@ -111,12 +105,12 @@ server.get("/", async (req, res, next) => {
     const customersNormalized = customers.reduce((acc, customer) => {
       acc[customer.id] = customer;
       return acc;
-    }, {} as CustomersNormalized);
+    }, {});
 
     const servicesNormalized = services.reduce((acc, service) => {
       acc[service.id] = service;
       return acc;
-    }, {} as ServicesNormalized);
+    }, {});
 
     console.log(`normalized customers`, JSON.stringify(customersNormalized));
     console.log(`normalized services`, JSON.stringify(servicesNormalized));
@@ -129,12 +123,12 @@ server.get("/", async (req, res, next) => {
   } catch (e) {
     next(e);
   }
-});
+};
 
 const mapToResponse = (
-  appointment: Appointment,
-  customers: CustomersNormalized,
-  services: ServicesNormalized
+  appointment,
+  customers,
+  services
 ) => {
   const customerId = appointment.customer_appointment.customer_id;
   const serviceId = appointment.service_id.id;
@@ -166,26 +160,3 @@ const mapToResponse = (
     },
   };
 };
-
-server.get("/invoice", (req, res, next) => {
-  try {
-    const opts = {
-      headers: {
-        Authorization: getAuth("PatrickDankerlui", "ybntFqQMP2jfCZU"),
-      },
-      responseType: "json",
-    } as any;
-
-    // create customer 
-
-    // create invoice
-
-    // send
-  } catch (e) {
-    next(e);
-  }
-});
-
-server.listen(port, () => {
-  console.log(`listening on port ${port}`);
-});
