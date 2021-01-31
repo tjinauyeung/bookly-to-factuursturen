@@ -1,6 +1,5 @@
 const got = require('got');
 const { isAfter, sub } = require('date-fns');
-import { isAfter, sub } from "date-fns";
 
 // interface Appointment {
 //   id: string;
@@ -121,7 +120,7 @@ module.exports = async (req, res) => {
       )
     );
   } catch (e) {
-    next(e);
+    // next(e);
   }
 };
 
