@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "dev": "ts-node-dev ./server.ts"
+    "test": "echo 'No tests in project'; exit=1;"
   },
   "author": "",
   "license": "ISC",

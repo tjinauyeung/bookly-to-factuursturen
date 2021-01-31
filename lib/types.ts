@@ -1,4 +1,4 @@
-export interface Appointment {
+export interface BooklyAppointment {
   id: string;
   created_at: string;
   updated_at: string;
@@ -43,4 +43,32 @@ export interface Service {
   type: string;
   title: string;
   price: string;
+}
+
+export interface Appointment {
+  id: string;
+  created_at: string;
+  updated_at: string;
+  start_date: string;
+  end_date: string;
+  location: string;
+  service: {
+    id: string;
+    title: string;
+    price: string;
+  };
+  physician: {
+    id: string;
+    email: string;
+    full_name: string;
+  };
+  customer: {
+    id: string;
+    full_name: string;
+    first_name: string;
+    last_name: string;
+    phone: string;
+    email: string;
+    created_at: string;
+  };
 }

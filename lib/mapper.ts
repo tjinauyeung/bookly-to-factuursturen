@@ -1,10 +1,15 @@
-import { Appointment, CustomersNormalized, ServicesNormalized } from "./types";
+import {
+  Appointment,
+  BooklyAppointment,
+  CustomersNormalized,
+  ServicesNormalized,
+} from "./types";
 
 export const mapToResponse = (
-  appointment: Appointment,
+  appointment: BooklyAppointment,
   customers: CustomersNormalized,
   services: ServicesNormalized
-) => {
+): Appointment => {
   const customerId = appointment.customer_appointment.customer_id;
   const serviceId = appointment.service_id.id;
   return {
