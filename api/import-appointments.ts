@@ -1,6 +1,8 @@
 const got = require("got");
 const { isAfter, sub } = require("date-fns");
 
+require('dotenv').config();
+
 const baseUri = "https://rijbewijskeuringholland.nl/wp-json/wp/v2";
 const endpoints = {
   appointments: () => baseUri + "/wpo_bookly_appointments",
@@ -69,7 +71,10 @@ const getAuth = (username: string, password: string) => {
 const getLastAppointments = async () => {
   const opts = {
     headers: {
-      Authorization: getAuth("tjinauyeung@gmail.com", "Kwispelen1!"),
+      Authorization: getAuth(
+        process.env.BOOKLY_USERNAME as string,
+        process.env.BOOKLY_PASSWORD as string
+      ),
     },
     responseType: "json",
   };

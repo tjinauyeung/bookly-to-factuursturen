@@ -10,6 +10,7 @@
   "description": "",
   "dependencies": {
     "date-fns": "2.16.1",
+    "dotenv": "8.2.0",
     "express": "4.17.1",
     "got": "11.8.1",
     "ts-node": "9.1.1",
