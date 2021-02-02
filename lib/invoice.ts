@@ -54,7 +54,7 @@ export const createInvoice = async (
         },
       ],
       action: INVOICE_ACTION.SAVE,
-      savename: `invoice_to_${appointment.customer.email}`,
+      savename: `invoice_to_${appointment.customer.email}_${appointment.id}`,
     };
 
     console.log(`Creating new invoice:`, formatJSON(json));
