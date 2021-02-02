@@ -1,18 +1,17 @@
-import { isAfter, sub } from "date-fns";
 import got from "got";
 import { getAuthHeader } from "./auth";
 import { ENDPOINTS } from "./endpoints";
 import { mapToResponse } from "./mapper";
 import { Appointment, BooklyAppointment, Customer, Service } from "./types";
 import { formatJSON, normalize } from "./util";
+import moment from "moment";
+import "moment-timezone";
 
-const LAST_IMPORTED_SINCE = { hours: 1, minutes: 15 }; // ignore time zone difference
+moment.tz.setDefault("Europe/Amsterdam");
 
 const sinceLastImport = (appointment: BooklyAppointment) => {
-  const createdAt = new Date(appointment.created_at);
-  const lastImportedAt = sub(new Date(), LAST_IMPORTED_SINCE);
-  console.log(`Time of last import is ${lastImportedAt.toTimeString()}`)
-  return isAfter(createdAt, lastImportedAt);
+  const createdAt = moment(appointment.created_at);
+  return createdAt.isAfter(moment().subtract(15, "minutes"));
 };
 
 export const getLatestAppointments = async (): Promise<Appointment[]> => {
