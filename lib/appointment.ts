@@ -11,6 +11,7 @@ const LAST_IMPORTED_SINCE = { hours: 1, minutes: 15 }; // ignore time zone diffe
 const sinceLastImport = (appointment: BooklyAppointment) => {
   const createdAt = new Date(appointment.created_at);
   const lastImportedAt = sub(new Date(), LAST_IMPORTED_SINCE);
+  console.log(`Time of last import is ${lastImportedAt.toTimeString()}`)
   return isAfter(createdAt, lastImportedAt);
 };
 
