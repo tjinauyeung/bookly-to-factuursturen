@@ -16,6 +16,7 @@ module.exports = async (req: Request, res: any) => {
     for (const appointment of appointments) {
       const clientId = await createClient(appointment);
       const invoiceId = await createInvoice(clientId, appointment);
+
       clients.push(clientId);
       invoices.push(invoiceId);
     }
