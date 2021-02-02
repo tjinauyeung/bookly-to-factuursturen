@@ -4,8 +4,6 @@ import { ENDPOINTS } from "./endpoints";
 import { Appointment } from "./types";
 import { formatJSON } from "./util";
 
-const INVOICE_METHOD = "email";
-
 export const createClient = async (
   appointment: Appointment
 ): Promise<string> => {
@@ -15,7 +13,6 @@ export const createClient = async (
       contact: appointment.customer.full_name,
       phone: appointment.customer.phone,
       email: appointment.customer.email,
-      send_method: INVOICE_METHOD,
     };
 
     console.log(`Creating new client from`, formatJSON(json));
@@ -36,6 +33,11 @@ export const createClient = async (
   }
 };
 
+const INVOICE_ACTION = {
+  SEND: "send",
+  SAVE: "save",
+};
+
 export const createInvoice = async (
   clientId: string,
   appointment: Appointment
@@ -51,8 +53,8 @@ export const createInvoice = async (
           price: appointment.service.price,
         },
       ],
-      action: "send",
-      sendmethod: "email",
+      action: INVOICE_ACTION.SAVE,
+      savename: `invoice_to_${appointment.customer.email}`,
     };
 
     console.log(`Creating new invoice:`, formatJSON(json));
