@@ -11,7 +11,7 @@ moment.tz.setDefault("Europe/Amsterdam");
 
 const sinceLastImport = (appointment: BooklyAppointment) => {
   const createdAt = moment(appointment.created_at);
-  return createdAt.isAfter(moment().subtract(15, "minutes"));
+  return createdAt.isAfter(moment().subtract(1, "hours"));
 };
 
 export const getLatestAppointments = async (): Promise<Appointment[]> => {
