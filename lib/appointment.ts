@@ -6,7 +6,7 @@ import { mapToResponse } from "./mapper";
 import { Appointment, BooklyAppointment, Customer, Service } from "./types";
 import { formatJSON, normalize } from "./util";
 
-const LAST_IMPORTED_SINCE = { minutes: 15 };
+const LAST_IMPORTED_SINCE = { hours: 1, minutes: 15 }; // ignore time zone difference
 
 const sinceLastImport = (appointment: BooklyAppointment) => {
   const createdAt = new Date(appointment.created_at);
