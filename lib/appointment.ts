@@ -9,13 +9,6 @@ export const getAppointments = async (): Promise<Appointment[]> => {
   try {
     console.log("Start getting appointments...");
 
-    console.log(
-      "Logging needed env variables",
-      process.env.BOOKLY_USERNAME,
-      process.env.BOOKLY_PASSWORD,
-      process.env.BOOKLY_API_URL
-    );
-
     const options = getOptions();
     const resp = await got(ENDPOINTS.appointments(), options as any);
     const appointments = (resp.body as unknown) as BooklyAppointment[];
