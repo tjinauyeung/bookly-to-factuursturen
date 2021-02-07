@@ -6,7 +6,7 @@ import { Appointment, BooklyAppointment, Customer, Service } from "./types";
 import { normalize } from "./util";
 
 export const getAppointments = async (): Promise<Appointment[]> => {
-  console.log("Start getting latest appointments...");
+  console.log("Start getting appointments...");
 
   const options = getOptions();
   const resp = await got(ENDPOINTS.appointments(), options as any);

@@ -71,7 +71,7 @@ app.get("/create-invoice", async (req: Request, res: any) => {
     console.log("Finish request: create-invoice service complete.");
     console.log("------------------------------------------------");
   } catch (err) {
-    console.error("Failed to import appointments:", err);
+    console.error("Failed to import appointments. Reason:", err);
   }
 });
 
