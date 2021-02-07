@@ -9,7 +9,12 @@ export const getAppointments = async (): Promise<Appointment[]> => {
   try {
     console.log("Start getting appointments...");
 
-    console.log("Logging needed env variables", process.env.BOOKLY_USERNAME, process.env.BOOKLY_PASSWORD, process.env.BOOKLY_API_URL);
+    console.log(
+      "Logging needed env variables",
+      process.env.BOOKLY_USERNAME,
+      process.env.BOOKLY_PASSWORD,
+      process.env.BOOKLY_API_URL
+    );
 
     const options = getOptions();
     const resp = await got(ENDPOINTS.appointments(), options as any);
@@ -33,15 +38,21 @@ export const getAppointments = async (): Promise<Appointment[]> => {
   }
 };
 
-export const getAppointment = async (
+export const getAppointment = (
   id: string
 ): Promise<Appointment | null> => {
   console.log(`Get appointment with id ${id}`);
   return got(ENDPOINTS.appointment(id), getOptions() as any)
     .then((res) => res.body as any)
-    .then((body) =>
-      body && body.status === 404 ? null : (body as Appointment)
-    )
+    .then((body) => {
+      if (body && body.status === 404) {
+        console.log(`No appointment found with id ${id}`);
+        return null;
+      } else {
+        console.log(`Appointment found with id ${id}`);
+        return body as Appointment;
+      }
+    })
     .catch((err) => {
       console.log(`Failed to get an appointment with id ${id}.`);
       return null;
