@@ -5,9 +5,10 @@
   "description": "API to create invoices in Factuursturen.nl from Bookly appointments",
   "scripts": {
     "build": "tsc",
-    "start": "npm run clean && npm run build && node ./dist/server.js",
+    "clean": "rm -rf ./dist/",
     "dev": "ts-node-dev ./server.ts",
-    "clean": "rm -rf ./dist/"
+    "prestart": "npm run clean && npm run build",
+    "start": "node ./dist/server.js"
   },
   "author": "",
   "license": "ISC",
