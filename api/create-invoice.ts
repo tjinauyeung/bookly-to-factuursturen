@@ -1,4 +1,4 @@
-import { getLatestAppointments } from "../lib/appointment";
+import { getAppointments, getCustomer } from "../lib/appointment";
 import { createClient, createInvoice } from "../lib/invoice";
 import { formatJSON } from "../lib/util";
 
@@ -6,23 +6,15 @@ require("dotenv").config();
 
 module.exports = async (req: Request, res: any) => {
   try {
-    const appointments = await getLatestAppointments();
+    const appointments = await getAppointments();
 
     console.log(`latest appointments processed:`, formatJSON(appointments));
 
-    const clients: string[] = [];
-    const invoices: string[] = [];
-
     for (const appointment of appointments) {
-      const clientId = await createClient(appointment);
-      const invoiceId = await createInvoice(clientId, appointment);
-
-      clients.push(clientId);
-      invoices.push(invoiceId);
+      const customer = await getCustomer(appointment.customer.id);
+      const clientId = await createClient(customer);
+      await createInvoice(clientId, appointment);
     }
-
-    console.log(`invoices sent: ${invoices.join(", ")}.`);
-    console.log(`clients created: ${clients.join(", ")}.`);
 
     res.json(appointments);
   } catch (err) {

@@ -3,47 +3,35 @@ import { getAuthHeader } from "./auth";
 import { ENDPOINTS } from "./endpoints";
 import { mapToResponse } from "./mapper";
 import { Appointment, BooklyAppointment, Customer, Service } from "./types";
-import { formatJSON, normalize } from "./util";
-import moment from "moment";
-import "moment-timezone";
+import { normalize } from "./util";
 
-moment.tz.setDefault("Europe/Amsterdam");
+export const getAppointments = async (): Promise<Appointment[]> => {
+  console.log("Start getting latest appointments...");
 
-const sinceLastImport = (appointment: BooklyAppointment) => {
-  const createdAt = moment(appointment.created_at);
-  return createdAt.isAfter(moment().subtract(1, "hours"));
-};
-
-export const getLatestAppointments = async (): Promise<Appointment[]> => {
   const options = getOptions();
   const resp = await got(ENDPOINTS.appointments(), options as any);
-  const body = resp.body as any;
-  const appointments = body.filter(sinceLastImport) as BooklyAppointment[];
+  const appointments = (resp.body as unknown) as BooklyAppointment[];
 
-  console.log(`appointments imported:`, formatJSON(appointments));
-
+  console.log("Enrich appointment data with services data");
   const services: Service[] = await got(
     ENDPOINTS.services(),
     options as any
   ).then((res: any) => res.body);
 
-  console.log(`services requested:`, formatJSON(services));
-
-  const customers: Customer[] = await Promise.all(
-    appointments
-      .map((appointment) => appointment.customer_appointment.customer_id)
-      .map((id) =>
-        got(ENDPOINTS.customer(id), options as any).then((res: any) => res.body)
-      )
-  );
-
-  console.log(`customers requested:`, formatJSON(customers));
-
   const results = appointments.map((appointment: any) =>
-    mapToResponse(appointment, normalize(customers), normalize(services))
+    mapToResponse(appointment, normalize(services))
   );
 
+  console.log("Finish getting latest appointments.");
   return results;
+};
+
+export const getCustomer = (id: string): Promise<Customer> => {
+  console.log(`Get customer data for id ${id}`);
+  return got(ENDPOINTS.customer(id), getOptions() as any).then((res: any) => {
+    console.log(`Get customer data for id ${id} complete.`);
+    return res.body;
+  });
 };
 
 function getOptions() {

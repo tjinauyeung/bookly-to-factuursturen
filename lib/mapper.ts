@@ -1,16 +1,13 @@
 import {
   Appointment,
   BooklyAppointment,
-  CustomersNormalized,
   ServicesNormalized,
 } from "./types";
 
 export const mapToResponse = (
   appointment: BooklyAppointment,
-  customers: CustomersNormalized,
   services: ServicesNormalized
 ): Appointment => {
-  const customerId = appointment.customer_appointment.customer_id;
   const serviceId = appointment.service_id.id;
   return {
     id: appointment.id,
@@ -30,13 +27,7 @@ export const mapToResponse = (
       full_name: appointment.staff_id.full_name,
     },
     customer: {
-      id: customerId,
-      full_name: customers[customerId].full_name,
-      first_name: customers[customerId].first_name,
-      last_name: customers[customerId].last_name,
-      phone: customers[customerId].phone,
-      email: customers[customerId].email,
-      created_at: customers[customerId].created_at,
+      id: appointment.customer_appointment.customer_id,
     },
   };
 };

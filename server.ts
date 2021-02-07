@@ -1,191 +1,72 @@
 import express from "express";
-import got from "got";
-import { isAfter, sub } from "date-fns";
+import { getCustomer, getAppointments } from "./lib/appointment";
+import {
+  createClient,
+  createInvoice,
+  deleteClient,
+  deleteSavedInvoice,
+  getSavedInvoices,
+} from "./lib/invoice";
+import { Appointment, SavedInvoice } from "./lib/types";
+
+require("dotenv").config();
 
 const server = express();
 
-server.use(express.urlencoded());
+server.use(express.urlencoded({ extended: true }));
 
 const port = 3000;
 
-interface Appointment {
-  id: string;
-  created_at: string;
-  updated_at: string;
-  start_date: string;
-  end_date: string;
-  service_id: any;
-  customer_appointment: {
-    customer_id: string;
-  };
-  staff_id: {
-    id: string;
-    full_name: string;
-    email: string;
-  };
-}
+const isSavedInFS = (
+  saved_invoices: SavedInvoice[],
+  appointment: Appointment
+) => saved_invoices.some((invoice) => invoice.name.startsWith(appointment.id));
 
-interface CustomersNormalized {
-  [id: string]: Customer;
-}
-
-interface ServicesNormalized {
-  [id: string]: Service;
-}
-
-interface Customer {
-  id: string;
-  full_name: string;
-  first_name: string;
-  last_name: string;
-  phone: string;
-  email: string;
-  created_at: string;
-}
-
-interface Service {
-  id: string;
-  category_id: {
-    id: string;
-    name: string; // address
-  };
-  duration: string;
-  type: string;
-  title: string;
-  price: string;
-}
-
-const baseUri = "https://rijbewijskeuringholland.nl/wp-json/wp/v2";
-const endpoints = {
-  appointments: () => baseUri + "/wpo_bookly_appointments",
-  customer: (id: string) => baseUri + `/wpo_bookly_customers/${id}`,
-  services: () => baseUri + `/wpo_bookly_services`,
-};
-
-const CRONJOB_INTERVAL_IN_MINUTES = 60;
-
-const fromYesterday = (appointment: any) =>
-  isAfter(
-    new Date(appointment.created_at),
-    sub(new Date(), { days: 3 })
+const isInBookly = (
+  appointments: Appointment[],
+  saved_invoice: SavedInvoice
+) =>
+  appointments.some((appointment) =>
+    saved_invoice.name.startsWith(appointment.id)
   );
 
-const getAuth = (username: string, password: string) => {
-  const base64 = Buffer.from(username + ":" + password).toString("base64");
-  const auth = "Basic " + base64;
-  return auth;
-};
-
-server.get("/", async (req, res, next) => {
+server.get("/create-invoice", async (req: Request, res: any) => {
   try {
-    const opts = {
-      headers: {
-        Authorization: getAuth("tjinauyeung@gmail.com", "Kwispelen1!"),
-      },
-      responseType: "json",
-    } as any;
+    console.log("-------------------------------------------------");
+    console.log("Incoming request: start create-invoice service");
+    console.log("-------------------------------------------------");
 
-    const resp = await got(endpoints.appointments(), opts);
-    const body = resp.body as any;
-    const appointments: Appointment[] = body.filter(fromYesterday);
+    const appointments = await getAppointments();
+    const saved_invoices = await getSavedInvoices();
 
-    console.log(`appointments since yesterday:`, JSON.stringify(appointments));
+    for (const appointment of appointments) {
+      if (!isSavedInFS(saved_invoices, appointment)) {
+        const customer = await getCustomer(appointment.customer.id);
+        const clientId = await createClient(customer);
+        await createInvoice(clientId, appointment);
+      }
+    }
 
-    const customers: Customer[] = await Promise.all(
-      appointments
-        .map((appointment) => appointment.customer_appointment.customer_id)
-        .map((id) =>
-          got(endpoints.customer(id), opts).then((res) => res.body as any)
-        )
-    );
+    for (const invoice of saved_invoices) {
+      if (!isInBookly(appointments, invoice)) {
+        // if appointment is not in Bookly, but there is invoice;
+        // then the appointment was cancelled.
+        // So we need to clean up the data in FS
+        await deleteSavedInvoice(invoice.id);
+        await deleteClient(invoice.clientnr);
+      }
+    }
 
-    const services = (await got(endpoints.services(), opts).then(
-      (res) => res.body
-    )) as Service[];
+    res.json(appointments);
 
-    console.log(
-      `customers belonging to appointments requested:`,
-      JSON.stringify(customers)
-    );
-
-    const customersNormalized = customers.reduce((acc, customer) => {
-      acc[customer.id] = customer;
-      return acc;
-    }, {} as CustomersNormalized);
-
-    const servicesNormalized = services.reduce((acc, service) => {
-      acc[service.id] = service;
-      return acc;
-    }, {} as ServicesNormalized);
-
-    console.log(`normalized customers`, JSON.stringify(customersNormalized));
-    console.log(`normalized services`, JSON.stringify(servicesNormalized));
-
-    res.json(
-      appointments.map((appointment) =>
-        mapToResponse(appointment, customersNormalized, servicesNormalized)
-      )
-    );
-  } catch (e) {
-    next(e);
-  }
-});
-
-const mapToResponse = (
-  appointment: Appointment,
-  customers: CustomersNormalized,
-  services: ServicesNormalized
-) => {
-  const customerId = appointment.customer_appointment.customer_id;
-  const serviceId = appointment.service_id.id;
-  return {
-    id: appointment.id,
-    created_at: appointment.created_at,
-    updated_at: appointment.updated_at,
-    start_date: appointment.start_date,
-    end_date: appointment.end_date,
-    location: services[serviceId].category_id.name,
-    service: {
-      id: services[serviceId].id,
-      title: services[serviceId].title,
-      price: services[serviceId].price,
-    },
-    physician: {
-      id: appointment.staff_id.id,
-      email: appointment.staff_id.email,
-      full_name: appointment.staff_id.full_name,
-    },
-    customer: {
-      id: customerId,
-      full_name: customers[customerId].full_name,
-      first_name: customers[customerId].first_name,
-      last_name: customers[customerId].last_name,
-      phone: customers[customerId].phone,
-      email: customers[customerId].email,
-      created_at: customers[customerId].created_at,
-    },
-  };
-};
-
-server.get("/invoice", (req, res, next) => {
-  try {
-    const opts = {
-      headers: {
-        Authorization: getAuth("PatrickDankerlui", "ybntFqQMP2jfCZU"),
-      },
-      responseType: "json",
-    } as any;
-
-    // create customer 
-
-    // create invoice
-
-    // send
-  } catch (e) {
-    next(e);
+    console.log("------------------------------------------------");
+    console.log("Finish request: create-invoice service complete.");
+    console.log("------------------------------------------------");
+  } catch (err) {
+    console.error("Failed to import appointments:", err);
   }
 });
 
 server.listen(port, () => {
-  console.log(`listening on port ${port}`);
+  console.log(`Server started. Listening on port ${port}`);
 });

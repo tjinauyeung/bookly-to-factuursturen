@@ -1,21 +1,19 @@
 import got from "got";
 import { getAuthHeader } from "./auth";
 import { ENDPOINTS } from "./endpoints";
-import { Appointment } from "./types";
+import { Customer, Appointment, SavedInvoice } from "./types";
 import { formatJSON } from "./util";
 
-export const createClient = async (
-  appointment: Appointment
-): Promise<string> => {
+export const createClient = async (customer: Customer): Promise<string> => {
   try {
     const options = getOptions() as any;
     const json = {
-      contact: appointment.customer.full_name,
-      phone: appointment.customer.phone,
-      email: appointment.customer.email,
+      contact: customer.full_name,
+      phone: customer.phone,
+      email: customer.email,
     };
 
-    console.log(`Creating new client from`, formatJSON(json));
+    console.log(`Creating new fs client from`, formatJSON(json));
 
     const id = await got
       .post(ENDPOINTS.clients(), { ...options, json })
@@ -26,11 +24,23 @@ export const createClient = async (
     return id;
   } catch (err) {
     console.error(
-      `Failed to create client for appointment ${appointment.id}:`,
+      `Failed to create new fs client for customer with id ${customer.id}:`,
       err
     );
     throw new Error(err);
   }
+};
+
+export const deleteClient = (id: string) => {
+  console.log(`Removing client with id ${id} from factuursturen.nl`);
+  return got
+    .delete(ENDPOINTS.clients(id), {
+      ...(getOptions() as any),
+      responseType: "text",
+    })
+    .catch((err) =>
+      console.log(`Removing client with id ${id} failed with reason`, err)
+    );
 };
 
 const INVOICE_ACTION = {
@@ -44,6 +54,7 @@ export const createInvoice = async (
 ): Promise<string> => {
   try {
     const options = getOptions() as any;
+    const name = `${appointment.id}_invoice_to_${clientId}`;
     const json = {
       clientnr: clientId,
       lines: [
@@ -54,22 +65,44 @@ export const createInvoice = async (
         },
       ],
       action: INVOICE_ACTION.SAVE,
-      savename: `invoice_to_${appointment.customer.email}_${appointment.id}`,
+      savename: name,
     };
-
-    console.log(`Creating new invoice:`, formatJSON(json));
 
     const id = await got
       .post(ENDPOINTS.invoices(), { ...options, json })
       .then((res) => res.body);
 
-    console.log(`Invoice sent with id:`, id);
+    console.log(`Saved invoice with name:`, name);
 
-    return id;
+    return name;
   } catch (err) {
     console.error(`Failed to create invoice for client ${clientId}:`, err);
     throw new Error(err);
   }
+};
+
+export const getSavedInvoices = (): Promise<SavedInvoice[]> => {
+  console.log("Retrieving saved invoices...");
+  return got
+    .get(ENDPOINTS.invoicesSaved(), getOptions() as any)
+    .then((res) => (res.body as unknown) as SavedInvoice[])
+    .catch((err) => {
+      console.error(`Failed to get saved invoices:`, err);
+      throw new Error(err);
+    });
+};
+
+export const deleteSavedInvoice = (id: string) => {
+  console.log(`Deleting invoice with id: ${id}`);
+  return got
+    .delete(ENDPOINTS.invoicesSaved(id), {
+      ...(getOptions() as any),
+      responseType: "text",
+    })
+    .catch((err) => {
+      console.error(`Failed to delete invoice with id ${id}. Reason:`, err);
+      throw new Error(err);
+    });
 };
 
 function getOptions() {
