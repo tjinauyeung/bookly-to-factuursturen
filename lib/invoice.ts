@@ -70,7 +70,7 @@ export const createInvoice = async (
         {
           amount: 1,
           description: appointment.service.title,
-          price: (Number(appointment.service.price) / 121) * 100,
+          price: Number((Number(appointment.service.price) / 121) * 100).toFixed(2),
           tax_rate: 21,
         },
       ],

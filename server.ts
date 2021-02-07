@@ -37,6 +37,8 @@ app.get("/create-invoice", async (req: Request, res: any) => {
     console.log("Incoming request: start create-invoice service");
     console.log("-------------------------------------------------");
 
+    res.json({ time: new Date(), message: "Job started: create-invoice. OK" });
+
     const appointments = await getAppointments();
     const saved_invoices = await getSavedInvoices();
 
@@ -62,8 +64,6 @@ app.get("/create-invoice", async (req: Request, res: any) => {
         }
       }
     }
-
-    res.json(appointments);
 
     console.log("------------------------------------------------");
     console.log("Finish request: create-invoice service complete.");
