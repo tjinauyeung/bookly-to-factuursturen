@@ -3,6 +3,7 @@ import { getAuthHeader } from "./auth";
 import { ENDPOINTS } from "./endpoints";
 import { Customer, Appointment, SavedInvoice } from "./types";
 import { formatJSON } from "./util";
+import { format } from 'date-fns';
 
 export const createClient = async (customer: Customer): Promise<string> => {
   try {
@@ -57,6 +58,11 @@ export const createInvoice = async (
     const name = `${appointment.id}_invoice_to_${clientId}`;
     const json = {
       clientnr: clientId,
+      reference: {
+        line1: `Tijd: ${format(new Date(appointment.start_date), 'mm:HH DD-MM-YYYY')}`,
+        line2: `Arts: ${appointment.physician.full_name}`,
+        line3: `Locatie: ${appointment.location}`,
+      },
       lines: [
         {
           amount: 1,
