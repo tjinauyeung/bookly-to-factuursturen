@@ -6,24 +6,29 @@ import { Appointment, BooklyAppointment, Customer, Service } from "./types";
 import { normalize } from "./util";
 
 export const getAppointments = async (): Promise<Appointment[]> => {
-  console.log("Start getting appointments...");
+  try {
+    console.log("Start getting appointments...");
 
-  const options = getOptions();
-  const resp = await got(ENDPOINTS.appointments(), options as any);
-  const appointments = (resp.body as unknown) as BooklyAppointment[];
+    const options = getOptions();
+    const resp = await got(ENDPOINTS.appointments(), options as any);
+    const appointments = (resp.body as unknown) as BooklyAppointment[];
 
-  console.log("Enrich appointment data with services data");
-  const services: Service[] = await got(
-    ENDPOINTS.services(),
-    options as any
-  ).then((res: any) => res.body);
+    console.log("Enrich appointment data with services data");
+    const services: Service[] = await got(
+      ENDPOINTS.services(),
+      options as any
+    ).then((res: any) => res.body);
 
-  const results = appointments.map((appointment: any) =>
-    mapToResponse(appointment, normalize(services))
-  );
+    const results = appointments.map((appointment: any) =>
+      mapToResponse(appointment, normalize(services))
+    );
 
-  console.log("Finish getting latest appointments.");
-  return results;
+    console.log("Finish getting latest appointments.");
+    return results;
+  } catch (err) {
+    console.log("Failed to get appointments. Reason:", err);
+    throw new Error(err);
+  }
 };
 
 export const getAppointment = async (
