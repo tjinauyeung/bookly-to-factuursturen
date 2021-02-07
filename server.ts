@@ -1,5 +1,9 @@
 import express from "express";
-import { getCustomer, getAppointments } from "./lib/appointment";
+import {
+  getCustomer,
+  getAppointments,
+  getAppointment,
+} from "./lib/appointment";
 import {
   createClient,
   createInvoice,
@@ -11,26 +15,25 @@ import { Appointment, SavedInvoice } from "./lib/types";
 
 require("dotenv").config();
 
-const server = express();
+const app = express();
 
-server.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true }));
 
 const port = 3000;
+
+app.get("/", (req: Request, res: any) => res.send("OK"));
 
 const isSavedInFS = (
   saved_invoices: SavedInvoice[],
   appointment: Appointment
 ) => saved_invoices.some((invoice) => invoice.name.startsWith(appointment.id));
 
-const isInBookly = (
-  appointments: Appointment[],
-  saved_invoice: SavedInvoice
-) =>
+const isInBookly = (appointments: Appointment[], saved_invoice: SavedInvoice) =>
   appointments.some((appointment) =>
     saved_invoice.name.startsWith(appointment.id)
   );
 
-server.get("/create-invoice", async (req: Request, res: any) => {
+app.get("/create-invoice", async (req: Request, res: any) => {
   try {
     console.log("-------------------------------------------------");
     console.log("Incoming request: start create-invoice service");
@@ -48,12 +51,17 @@ server.get("/create-invoice", async (req: Request, res: any) => {
     }
 
     for (const invoice of saved_invoices) {
+      // if appointment is not in Bookly, but there is invoice;
+      // then the appointment was cancelled.
+      // So we need to clean up the data in FS
       if (!isInBookly(appointments, invoice)) {
-        // if appointment is not in Bookly, but there is invoice;
-        // then the appointment was cancelled.
-        // So we need to clean up the data in FS
-        await deleteSavedInvoice(invoice.id);
-        await deleteClient(invoice.clientnr);
+        // double check per appointment if it really is not in Bookly
+        const appointmentId = invoice.name.split("_")[0];
+        const appointment = await getAppointment(appointmentId);
+        if (appointment === null) {
+          await deleteSavedInvoice(invoice.id);
+          await deleteClient(invoice.clientnr);
+        }
       }
     }
 
@@ -67,6 +75,6 @@ server.get("/create-invoice", async (req: Request, res: any) => {
   }
 });
 
-server.listen(port, () => {
+app.listen(port, () => {
   console.log(`Server started. Listening on port ${port}`);
 });

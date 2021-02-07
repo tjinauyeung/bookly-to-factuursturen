@@ -2,7 +2,8 @@ import path from "path";
 
 export const ENDPOINTS = {
   services: () => endpoint.bookly(`/wpo_bookly_services`),
-  appointments: () => endpoint.bookly("/wpo_bookly_appointments"),
+  appointments: (id?: string) =>
+    endpoint.bookly(`/wpo_bookly_appointments/${id}`),
   customer: (id: string) => endpoint.bookly(`/wpo_bookly_customers/${id}`),
   invoices: (id?: string) => endpoint.fs(`/invoices/${id}`),
   invoicesSaved: (id?: string) => endpoint.fs(`/invoices_saved/${id}`),
