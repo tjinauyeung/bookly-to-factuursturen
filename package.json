@@ -4,10 +4,9 @@
   "main": "server.ts",
   "description": "API to create invoices in Factuursturen.nl from Bookly appointments",
   "scripts": {
-    "build": "tsc",
+    "build": "npm run clean && tsc",
     "clean": "rm -rf ./dist/",
     "dev": "ts-node-dev ./server.ts",
-    "prestart": "npm run clean && npm run build",
     "start": "node ./dist/server.js"
   },
   "author": "",

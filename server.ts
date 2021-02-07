@@ -21,8 +21,6 @@ app.use(express.urlencoded({ extended: true }));
 
 const port = process.env.PORT || 3000;
 
-app.get("/", (req: Request, res: any) => res.send("OK"));
-
 const isSavedInFS = (
   saved_invoices: SavedInvoice[],
   appointment: Appointment
@@ -74,6 +72,8 @@ app.get("/create-invoice", async (req: Request, res: any) => {
     console.error("Failed to import appointments. Reason:", err);
   }
 });
+
+app.get("/", (req: Request, res: any) => res.send("OK"));
 
 app.listen(port, () => {
   console.log(`Server started. Listening on port ${port}`);

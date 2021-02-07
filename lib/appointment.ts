@@ -37,14 +37,14 @@ export const getAppointment = async (
   id: string
 ): Promise<Appointment | null> => {
   console.log(`Get appointment with id ${id}`);
-  return got(ENDPOINTS.appointments(), getOptions() as any)
+  return got(ENDPOINTS.appointment(id), getOptions() as any)
     .then((res) => res.body as any)
     .then((body) =>
       body && body.status === 404 ? null : (body as Appointment)
     )
     .catch((err) => {
-      console.log(`Get appointment with id ${id} failed:`, err);
-      throw new Error(err);
+      console.log(`Failed to get an appointment with id ${id}.`);
+      return null;
     });
 };
 
