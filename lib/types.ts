@@ -77,13 +77,13 @@ export interface SavedInvoice {
   };
   lines: {
     line1: {
-      amount: 1;
+      amount: number;
       amount_desc: string;
       description: string;
-      tax_rate: -1;
-      price: 49.95;
-      discount_pct: 0;
-      linetotal: 49.95;
+      tax_rate: number;
+      price: number
+      discount_pct: number
+      linetotal: number
     };
   };
   profile: string;
@@ -109,4 +109,71 @@ export interface SavedInvoice {
   tax_type: string;
   tax_shifted: string;
   sendmethod: string;
+}
+
+export interface Invoice {
+  id: string;
+  invoicenr_full: string;
+  invoicenr: string;
+  reference: {
+    line1: string;
+    line2: string;
+    line3: string;
+  };
+  lines: {
+    line1: {
+      amount: number;
+      amount_desc: string;
+      description: string;
+      tax_rate: number;
+      price: number
+      discount_pct: number
+      linetotal: number
+    };
+  };
+  profile: string;
+  category: string;
+  discounttype: string;
+  discount: string;
+  paymentcondition: string;
+  paymentperiod: string;
+  collection: string;
+  tax: string;
+  totalintax: string;
+  clientnr: string;
+  company: string;
+  contact: string;
+  address: string;
+  zipcode: string;
+  city: string;
+  country: string;
+  phone: string;
+  mobile: string;
+  email: string;
+  taxnumber: string;
+  invoicenote: string;
+  sent: string;
+  uncollectible: string;
+  lastreminder: string;
+  open: string;
+  paiddate: string;
+  taxes: {
+    tax1: {
+      rate: number;
+      sum: string;
+      sum_of: string;
+    };
+  };
+  tax_type: string;
+  language: string;
+  tax_shifted: string;
+  payment_url: string;
+  duedate: string;
+  history: {
+    item1: {
+      date: string;
+      time: string;
+      description: string;
+    };
+  };
 }

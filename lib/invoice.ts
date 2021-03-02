@@ -1,7 +1,7 @@
 import got from "got";
 import { getAuthHeader } from "./auth";
 import { ENDPOINTS } from "./endpoints";
-import { Customer, Appointment, SavedInvoice } from "./types";
+import { Customer, Appointment, SavedInvoice, Invoice } from "./types";
 import { formatJSON } from "./util";
 import { format } from "date-fns";
 
@@ -56,21 +56,22 @@ export const createInvoice = async (
   try {
     const options = getOptions() as any;
     const name = `${appointment.id}_invoice_to_${clientId}`;
+    const time = format(new Date(appointment.start_date), "dd-MM-yyyy HH:mm");
+    const VATPercentage = 21;
     const json = {
       clientnr: clientId,
       reference: {
-        line1: `Tijd: ${format(
-          new Date(appointment.start_date),
-          "HH:mm, dd-MM-yyyy"
-        )}`,
+        line1: `Afspraak ID: ${appointment.id}`,
         line2: `Arts: ${appointment.physician.full_name}`,
-        line3: `Locatie: ${appointment.location}`,
+        line3: `Tijd en locatie: ${time} - ${appointment.location}`,
       },
       lines: [
         {
           amount: 1,
           description: appointment.service.title,
-          price: Number((Number(appointment.service.price) / 121) * 100).toFixed(2),
+          price: Number(
+            (Number(appointment.service.price) / (100 + VATPercentage)) * 100
+          ).toFixed(2),
           tax_rate: 21,
         },
       ],
@@ -82,7 +83,9 @@ export const createInvoice = async (
       .post(ENDPOINTS.invoices(), { ...options, json })
       .then((res) => res.body);
 
-    console.log(`Saved invoice with name:`, name);
+    console.log(
+      `Saved invoice for appointment ${appointment.id} as ${name} with id ${id}`
+    );
 
     return name;
   } catch (err) {
@@ -102,10 +105,21 @@ export const getSavedInvoices = (): Promise<SavedInvoice[]> => {
     });
 };
 
+export const getSentInvoices = (): Promise<Invoice[]> => {
+  console.log("Retrieving sent invoices...");
+  return got
+    .get(ENDPOINTS.invoicesSent(), getOptions() as any)
+    .then((res) => (res.body as unknown) as Invoice[])
+    .catch((err) => {
+      console.error(`Failed to get sent invoices:`, err);
+      throw new Error(err);
+    });
+};
+
 export const deleteSavedInvoice = (id: string) => {
   console.log(`Deleting invoice with id: ${id}`);
   return got
-    .delete(ENDPOINTS.invoicesSaved(id), {
+    .delete(ENDPOINTS.invoicesSavedById(id), {
       ...(getOptions() as any),
       responseType: "text",
     })
