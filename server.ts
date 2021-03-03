@@ -64,6 +64,24 @@ const isInBookly = (appointments: Appointment[], saved_invoice: SavedInvoice) =>
     saved_invoice.name.startsWith(appointment.id)
   );
 
+const shouldBeExcluded = (appointment: Appointment) => {
+  console.log(`excluding ${appointment.id}`);
+  return [
+    "500",
+    "501",
+    "502",
+    "503",
+    "504",
+    "505",
+    "506",
+    "507",
+    "508",
+    "509",
+    "512",
+    "513",
+  ].includes(appointment.id);
+};
+
 app.get("/create-invoice", async (req: Request, res: any) => {
   try {
     console.log("-------------------------------------------------");
@@ -77,7 +95,10 @@ app.get("/create-invoice", async (req: Request, res: any) => {
     const sent_invoices = await getSentInvoices();
 
     for (const appointment of appointments) {
-      if (!isInFS(appointment, saved_invoices, sent_invoices)) {
+      if (
+        !isInFS(appointment, saved_invoices, sent_invoices) &&
+        !shouldBeExcluded(appointment)
+      ) {
         const customer = await getCustomer(appointment.customer.id);
         const clientId = await createClient(customer);
         await createInvoice(clientId, appointment);
