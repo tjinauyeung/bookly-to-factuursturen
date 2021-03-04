@@ -116,15 +116,35 @@ export const getSentInvoices = (): Promise<Invoice[]> => {
     });
 };
 
+export const deleteSentInvoices = (id: string): Promise<Invoice[]> => {
+  console.log(`Deleting sent invoice with id: ${id}`);
+  return got
+    .delete(ENDPOINTS.invoicesSentById(id), {
+      ...(getOptions() as any),
+      responseType: "text",
+    })
+    .then((res) => (res.body as unknown) as Invoice[])
+    .catch((err) => {
+      console.error(
+        `Failed to delete sent invoice with id ${id}. Reason:`,
+        err
+      );
+      throw new Error(err);
+    });
+};
+
 export const deleteSavedInvoice = (id: string) => {
-  console.log(`Deleting invoice with id: ${id}`);
+  console.log(`Deleting saved invoice with id: ${id}`);
   return got
     .delete(ENDPOINTS.invoicesSavedById(id), {
       ...(getOptions() as any),
       responseType: "text",
     })
     .catch((err) => {
-      console.error(`Failed to delete invoice with id ${id}. Reason:`, err);
+      console.error(
+        `Failed to delete saved invoice with id ${id}. Reason:`,
+        err
+      );
       throw new Error(err);
     });
 };
