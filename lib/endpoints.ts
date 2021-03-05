@@ -6,7 +6,7 @@ export const ENDPOINTS = {
   appointment: (id?: string) =>
     endpoint.bookly(`/wpo_bookly_appointments/${id}`),
   customer: (id: string) => endpoint.bookly(`/wpo_bookly_customers/${id}`),
-  invoices: (id?: string) => endpoint.fs(`/invoices/${id}`),
+  invoices: () => endpoint.fs(`/invoices`),
   invoicesSaved: () => endpoint.fs(`/invoices_saved?count=-1`),
   invoicesSavedById: (id?: string) => endpoint.fs(`/invoices_saved/${id}`),
   invoicesSent: () => endpoint.fs(`/invoices?count=-1`),

@@ -75,8 +75,8 @@ export const createInvoice = async (
           tax_rate: 21,
         },
       ],
-      action: INVOICE_ACTION.SAVE,
-      savename: name,
+      action: INVOICE_ACTION.SEND,
+      sendmethod: "email",
     };
 
     const id = await got
@@ -84,7 +84,7 @@ export const createInvoice = async (
       .then((res) => res.body);
 
     console.log(
-      `Saved invoice for appointment ${appointment.id} as ${name} with id ${id}`
+      `Sent invoice for appointment ${appointment.id} as ${name} with id ${id}`
     );
 
     return name;
