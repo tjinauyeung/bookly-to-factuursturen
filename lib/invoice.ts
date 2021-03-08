@@ -59,7 +59,7 @@ export const createInvoice = async (
     const time = format(new Date(appointment.start_date), "dd-MM-yyyy HH:mm");
     const VATPercentage = 21;
     const json = {
-      clientnr: clientId,
+      clientnr: String(clientId),
       reference: {
         line1: `Afspraak ID: ${appointment.id}`,
         line2: `Arts: ${appointment.physician.full_name}`,
@@ -78,6 +78,10 @@ export const createInvoice = async (
       action: INVOICE_ACTION.SEND,
       sendmethod: "email",
     };
+
+    console.log(
+      `Sent invoice for appointment ${appointment.id} as ${name} with data: ${JSON.stringify(json)}`
+    );
 
     const id = await got
       .post(ENDPOINTS.invoices(), { ...options, json })
