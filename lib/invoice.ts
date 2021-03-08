@@ -85,7 +85,11 @@ export const createInvoice = async (
       } as ${name} with data: ${JSON.stringify(json)}`
     );
 
-    await got.post(ENDPOINTS.invoices(), { ...options, json });
+    await got.post(ENDPOINTS.invoices(), {
+      ...options,
+      json,
+      responseType: "text",
+    });
 
     console.log(`Sent invoice for appointment ${appointment.id} as ${name}.`);
 
