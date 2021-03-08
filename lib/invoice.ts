@@ -80,16 +80,14 @@ export const createInvoice = async (
     };
 
     console.log(
-      `Sent invoice for appointment ${appointment.id} as ${name} with data: ${JSON.stringify(json)}`
+      `Sent invoice for appointment ${
+        appointment.id
+      } as ${name} with data: ${JSON.stringify(json)}`
     );
 
-    const id = await got
-      .post(ENDPOINTS.invoices(), { ...options, json })
-      .then((res) => res.body);
+    await got.post(ENDPOINTS.invoices(), { ...options, json });
 
-    console.log(
-      `Sent invoice for appointment ${appointment.id} as ${name} with id ${id}`
-    );
+    console.log(`Sent invoice for appointment ${appointment.id} as ${name}.`);
 
     return name;
   } catch (err) {
