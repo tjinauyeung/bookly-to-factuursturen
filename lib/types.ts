@@ -7,6 +7,7 @@ export interface BooklyAppointment {
   service_id: any;
   customer_appointment: {
     customer_id: string;
+    status: string;
   };
   staff_id: {
     id: string;
@@ -65,6 +66,7 @@ export interface Appointment {
   customer: {
     id: string;
   };
+  status: string;
 }
 
 export interface SavedInvoice {

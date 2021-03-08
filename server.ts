@@ -65,6 +65,20 @@ const isInBookly = (appointments: Appointment[], saved_invoice: SavedInvoice) =>
     saved_invoice.name.startsWith(appointment.id)
   );
 
+const isCancelled = (
+  appointments: Appointment[],
+  invoice: SavedInvoice | Invoice
+) => {
+  const appointment = appointments.find((appointment) =>
+    invoice.reference.line1.includes(appointment.id)
+  );
+  if (appointment && appointment.status === 'cancelled') {
+    console.log(`Appointment ID ${appointment.id} for invoice ID ${invoice.id} has status "cancelled"`);
+    return true;
+  }
+  return false;
+};
+
 const isSentInBookly = (appointments: Appointment[], sent_invoice: Invoice) =>
   appointments.some((appointment) =>
     sent_invoice.reference.line1.includes(appointment.id)
@@ -109,19 +123,32 @@ app.get("/create-invoice", async (req: Request, res: any) => {
           await deleteSavedInvoice(invoice.id);
           await deleteClient(invoice.clientnr);
         }
+      } else if (isCancelled(appointments, invoice)) {
+        await deleteSavedInvoice(invoice.id);
+        await deleteClient(invoice.clientnr);
       }
     }
 
     for (const invoice of sent_invoices.slice(sent_invoices.length - 100)) {
-      if (!isSentInBookly(appointments, invoice) && invoice.reference.line1.startsWith('Afspraak ID:')) {
+      if (
+        !isSentInBookly(appointments, invoice) &&
+        invoice.reference.line1.startsWith("Afspraak ID:")
+      ) {
         // double check per appointment if it really is not in Bookly
         const appointmentId = invoice.reference.line1.split(":")[1];
         const appointment = await getAppointment(appointmentId.trim());
         if (appointment === null) {
-          console.log('deleting sent invoice with id', invoice.id, appointmentId);
+          console.log(
+            "deleting sent invoice with id",
+            invoice.id,
+            appointmentId
+          );
           await deleteSentInvoices(invoice.invoicenr);
           await deleteClient(invoice.clientnr);
         }
+      } else if (isCancelled(appointments, invoice)) {
+        await deleteSentInvoices(invoice.id);
+        await deleteClient(invoice.clientnr);
       }
     }
 

@@ -1,8 +1,4 @@
-import {
-  Appointment,
-  BooklyAppointment,
-  ServicesNormalized,
-} from "./types";
+import { Appointment, BooklyAppointment, ServicesNormalized } from "./types";
 
 export const mapToResponse = (
   appointment: BooklyAppointment,
@@ -16,6 +12,7 @@ export const mapToResponse = (
     start_date: appointment.start_date,
     end_date: appointment.end_date,
     location: services[serviceId].category_id.name,
+    status: appointment.customer_appointment.status,
     service: {
       id: services[serviceId].id,
       title: services[serviceId].title,
