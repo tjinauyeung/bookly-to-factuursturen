@@ -2,6 +2,7 @@ export interface BooklyAppointment {
   id: string;
   created_at: string;
   updated_at: string;
+  location_id: string;
   start_date: string;
   end_date: string;
   service_id: any;
@@ -83,9 +84,9 @@ export interface SavedInvoice {
       amount_desc: string;
       description: string;
       tax_rate: number;
-      price: number
-      discount_pct: number
-      linetotal: number
+      price: number;
+      discount_pct: number;
+      linetotal: number;
     };
   };
   profile: string;
@@ -128,9 +129,9 @@ export interface Invoice {
       amount_desc: string;
       description: string;
       tax_rate: number;
-      price: number
-      discount_pct: number
-      linetotal: number
+      price: number;
+      discount_pct: number;
+      linetotal: number;
     };
   };
   profile: string;

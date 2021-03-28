@@ -72,8 +72,10 @@ const isCancelled = (
   const appointment = appointments.find((appointment) =>
     invoice.reference.line1.includes(appointment.id)
   );
-  if (appointment && appointment.status === 'cancelled') {
-    console.log(`Appointment ID ${appointment.id} for invoice ID ${invoice.id} has status "cancelled"`);
+  if (appointment && appointment.status === "cancelled") {
+    console.log(
+      `Appointment ID ${appointment.id} for invoice ID ${invoice.id} has status "cancelled"`
+    );
     return true;
   }
   return false;
@@ -105,8 +107,14 @@ app.get("/create-invoice", async (req: Request, res: any) => {
         !isInFS(appointment, saved_invoices, sent_invoices)
       ) {
         const customer = await getCustomer(appointment.customer.id);
-        const clientId = await createClient(customer);
-        await createInvoice(clientId, appointment);
+        try {
+          const clientId = await createClient(customer);
+          await createInvoice(clientId, appointment);
+        } catch (e) {
+          console.log(`Failed to create invoice for client ${customer.id}`, {
+            customer,
+          });
+        }
       }
     }
 
