@@ -118,48 +118,6 @@ app.get("/create-invoice", async (req: Request, res: any) => {
       }
     }
 
-    // if appointment is not in Bookly, but there is invoice;
-    // then the appointment was cancelled.
-    // So we need to clean up the data in FS
-    //
-    for (const invoice of saved_invoices.slice(saved_invoices.length - 100)) {
-      if (!isInBookly(appointments, invoice)) {
-        // double check per appointment if it really is not in Bookly
-        const appointmentId = invoice.name.split("_")[0];
-        const appointment = await getAppointment(appointmentId);
-        if (appointment === null) {
-          await deleteSavedInvoice(invoice.id);
-          await deleteClient(invoice.clientnr);
-        }
-      } else if (isCancelled(appointments, invoice)) {
-        await deleteSavedInvoice(invoice.id);
-        await deleteClient(invoice.clientnr);
-      }
-    }
-
-    for (const invoice of sent_invoices.slice(sent_invoices.length - 100)) {
-      if (
-        !isSentInBookly(appointments, invoice) &&
-        invoice.reference.line1.startsWith("Afspraak ID:")
-      ) {
-        // double check per appointment if it really is not in Bookly
-        const appointmentId = invoice.reference.line1.split(":")[1];
-        const appointment = await getAppointment(appointmentId.trim());
-        if (appointment === null) {
-          console.log(
-            "deleting sent invoice with id",
-            invoice.id,
-            appointmentId
-          );
-          await deleteSentInvoices(invoice.invoicenr);
-          await deleteClient(invoice.clientnr);
-        }
-      } else if (isCancelled(appointments, invoice)) {
-        await deleteSentInvoices(invoice.id);
-        await deleteClient(invoice.clientnr);
-      }
-    }
-
     console.log("------------------------------------------------");
     console.log("Finish request: create-invoice service complete.");
     console.log("------------------------------------------------");
