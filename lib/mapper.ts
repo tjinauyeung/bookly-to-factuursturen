@@ -8,6 +8,7 @@ const locations: Location = {
   "1": "Koppestokstraat 87, Haarlem",
   "2": "Overschiestraat 59, Amsterdam",
   "3": "Ouddiemerlaan 104, Diemen",
+  "4": "Oosterkerkstraat 1, Leiden",
 };
 
 export const mapToResponse = (
