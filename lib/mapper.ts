@@ -37,5 +37,8 @@ export const mapToResponse = (
     customer: {
       id: appointment.customer_appointment.customer_id,
     },
+    discount: appointment.payment_details
+      ? Number(services[serviceId].price) - Number(appointment.payment_details.total)
+      : 0,
   };
 };

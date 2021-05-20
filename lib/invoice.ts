@@ -2,7 +2,7 @@ import got from "got";
 import { getAuthHeader } from "./auth";
 import { ENDPOINTS } from "./endpoints";
 import { Customer, Appointment, SavedInvoice, Invoice } from "./types";
-import { formatJSON } from "./util";
+import { formatJSON, formatPrice } from "./util";
 import { format } from "date-fns";
 
 export const createClient = async (customer: Customer): Promise<string> => {
@@ -78,6 +78,16 @@ export const createInvoice = async (
       action: INVOICE_ACTION.SEND,
       sendmethod: "email",
     };
+
+    if (appointment.discount) {
+      console.log(`Discount found. ${JSON.stringify({appointmentId: appointment.id, discount: appointment.discount})}`);
+      json.lines.push({
+        amount: 1,
+        description: `Kortings coupon van ${formatPrice(appointment.discount)}`,
+        price: (appointment.discount * -1).toFixed(2),
+        tax_rate: 0,
+      })
+    }
 
     console.log(
       `Sent invoice for appointment ${

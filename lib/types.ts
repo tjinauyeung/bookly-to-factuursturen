@@ -15,6 +15,9 @@ export interface BooklyAppointment {
     full_name: string;
     email: string;
   };
+  payment_details?: {
+    total: number;
+  }
 }
 
 export interface CustomersNormalized {
@@ -68,6 +71,7 @@ export interface Appointment {
     id: string;
   };
   status: string;
+  discount?: number;
 }
 
 export interface SavedInvoice {
