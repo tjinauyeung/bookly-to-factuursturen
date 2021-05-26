@@ -9,6 +9,7 @@ const locations: Location = {
   "2": "Overschiestraat 59, Amsterdam",
   "3": "Ouddiemerlaan 104, Diemen",
   "4": "Oosterkerkstraat 1, Leiden",
+  "5": "Kanaalweg 33, Capelle aan den IJssel"
 };
 
 export const mapToResponse = (
