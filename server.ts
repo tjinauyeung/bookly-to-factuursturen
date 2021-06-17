@@ -104,7 +104,8 @@ app.get("/create-invoice", async (req: Request, res: any) => {
     for (const appointment of appointments) {
       if (
         !shouldBeExcluded(appointment) &&
-        !isInFS(appointment, saved_invoices, sent_invoices)
+        !isInFS(appointment, saved_invoices, sent_invoices) &&
+        appointment.customer.id !== 'no-customer'
       ) {
         const customer = await getCustomer(appointment.customer.id);
         try {

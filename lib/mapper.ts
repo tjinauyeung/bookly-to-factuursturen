@@ -17,6 +17,7 @@ export const mapToResponse = (
   services: ServicesNormalized
 ): Appointment => {
   const serviceId = appointment.service_id.id;
+
   return {
     id: appointment.id,
     created_at: appointment.created_at,
@@ -24,7 +25,7 @@ export const mapToResponse = (
     start_date: appointment.start_date,
     end_date: appointment.end_date,
     location: locations[appointment.location_id] || "",
-    status: appointment.customer_appointment.status,
+    status: appointment.customer_appointment ? appointment.customer_appointment.status : 'no-appointment',
     service: {
       id: services[serviceId].id,
       title: services[serviceId].title,
@@ -36,7 +37,7 @@ export const mapToResponse = (
       full_name: appointment.staff_id.full_name,
     },
     customer: {
-      id: appointment.customer_appointment.customer_id,
+      id: appointment.customer_appointment ? appointment.customer_appointment.customer_id : 'no-customer',
     },
     discount: appointment.payment_details
       ? Number(services[serviceId].price) - Number(appointment.payment_details.total)
