@@ -39,13 +39,10 @@ app.get("/create-invoice", async (req: Request, res: any) => {
       ) {
         const customer = await getCustomer(appointment.customer.id);
         try {
-          const clientId = await createClient(customer);
-          const invoiceName = await createInvoice(clientId, appointment);
+          // const clientId = await createClient(customer);
+          // const invoiceName = await createInvoice(clientId, appointment);
 
-          new_invoices.push({
-            appointment_id: appointment.id,
-            invoice_name: invoiceName,
-          });
+          new_invoices.push(appointment.id);
 
           console.log("creating invoice for:", { customer, appointment });
         } catch (e) {
