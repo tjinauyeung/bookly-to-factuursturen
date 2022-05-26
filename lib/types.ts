@@ -17,7 +17,8 @@ export interface BooklyAppointment {
   };
   payment_details?: {
     total: number;
-  }
+    type: "local" | "mollie";
+  };
 }
 
 export interface CustomersNormalized {
@@ -72,6 +73,7 @@ export interface Appointment {
   };
   status: string;
   discount?: number;
+  payment_type?: "mollie" | "local";
 }
 
 export interface SavedInvoice {

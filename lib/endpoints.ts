@@ -1,4 +1,11 @@
 import path from "path";
+import { sub, format } from "date-fns";
+
+const getInvoiceSentEndpoint = () => {
+  const threeMonthsAgo = sub(new Date(), { months: 3 });
+  const since = format(threeMonthsAgo, "yyyy-MM-dd");
+  return `/invoices?since=${since}`;
+};
 
 export const ENDPOINTS = {
   services: () => endpoint.bookly(`/wpo_bookly_services`),
@@ -9,7 +16,7 @@ export const ENDPOINTS = {
   invoices: () => endpoint.fs(`/invoices`),
   invoicesSaved: () => endpoint.fs(`/invoices_saved?count=-1`),
   invoicesSavedById: (id?: string) => endpoint.fs(`/invoices_saved/${id}`),
-  invoicesSent: () => endpoint.fs(`/invoices?count=-1`),
+  invoicesSent: () => endpoint.fs(getInvoiceSentEndpoint()),
   invoicesSentById: (id?: string) => endpoint.fs(`/invoices/${id}`),
   clients: (id?: string) => endpoint.fs(`/clients/${id}`),
 };

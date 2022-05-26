@@ -9,7 +9,7 @@ const locations: Location = {
   "2": "Overschiestraat 59, Amsterdam",
   "3": "Ouddiemerlaan 104, Diemen",
   "4": "Oosterkerkstraat 1, Leiden",
-  "5": "Kanaalweg 33, Capelle aan den IJssel"
+  "5": "Kanaalweg 33, Capelle aan den IJssel",
 };
 
 export const mapToResponse = (
@@ -25,22 +25,28 @@ export const mapToResponse = (
     start_date: appointment.start_date,
     end_date: appointment.end_date,
     location: locations[appointment.location_id] || "",
-    status: appointment.customer_appointment ? appointment.customer_appointment.status : 'no-appointment',
+    status: appointment.customer_appointment
+      ? appointment.customer_appointment.status
+      : "no-appointment",
     service: {
       id: services[serviceId].id,
       title: services[serviceId].title,
       price: services[serviceId].price,
     },
+    payment_type: appointment.payment_details?.type,
     physician: {
       id: appointment.staff_id.id,
       email: appointment.staff_id.email,
       full_name: appointment.staff_id.full_name,
     },
     customer: {
-      id: appointment.customer_appointment ? appointment.customer_appointment.customer_id : 'no-customer',
+      id: appointment.customer_appointment
+        ? appointment.customer_appointment.customer_id
+        : "no-customer",
     },
     discount: appointment.payment_details
-      ? Number(services[serviceId].price) - Number(appointment.payment_details.total)
+      ? Number(services[serviceId].price) -
+        Number(appointment.payment_details.total)
       : 0,
   };
 };
