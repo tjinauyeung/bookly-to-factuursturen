@@ -2,9 +2,9 @@ import path from "path";
 import { sub, format } from "date-fns";
 
 const getInvoiceSentEndpoint = () => {
-  const threeMonthsAgo = sub(new Date(), { months: 3 });
-  const since = format(threeMonthsAgo, "yyyy-MM-dd");
-  return `/invoices?since=${since}`;
+  const date = sub(new Date(), { days: 1 });
+  const since = format(date, "yyyy-MM-dd");
+  return `/invoices?since=${since}&count=-1`;
 };
 
 export const ENDPOINTS = {

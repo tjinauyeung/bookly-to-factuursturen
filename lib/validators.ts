@@ -3,12 +3,7 @@ import { Appointment, Invoice, SavedInvoice } from "./types";
 export const isPaidByFS = (appointment: Appointment) =>
   appointment.payment_type === "local";
 
-export const isInFS = (
-  appointment: Appointment,
-  saved_invoices: SavedInvoice[],
-  sent_invoices: Invoice[]
-) =>
-  isSavedInFS(appointment, saved_invoices) ||
+export const isInFS = (appointment: Appointment, sent_invoices: Invoice[]) =>
   isSentByFS(appointment, sent_invoices);
 
 export const isSavedInFS = (

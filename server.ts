@@ -25,7 +25,6 @@ app.get("/create-invoice", async (req: Request, res: any) => {
     res.json({ time: new Date(), message: "Job started: create-invoice. OK" });
 
     const appointments = await getAppointments();
-    const saved_invoices = await getSavedInvoices();
     const sent_invoices = await getSentInvoices();
 
     const new_invoices = [];
@@ -34,13 +33,13 @@ app.get("/create-invoice", async (req: Request, res: any) => {
       if (
         isPaidByFS(appointment) &&
         !shouldBeExcluded(appointment) &&
-        !isInFS(appointment, saved_invoices, sent_invoices) &&
+        !isInFS(appointment, sent_invoices) &&
         appointment.customer.id !== "no-customer"
       ) {
         const customer = await getCustomer(appointment.customer.id);
         try {
-          // const clientId = await createClient(customer);
-          // const invoiceName = await createInvoice(clientId, appointment);
+          const clientId = await createClient(customer);
+          const invoiceName = await createInvoice(clientId, appointment);
 
           new_invoices.push(appointment.id);
 
