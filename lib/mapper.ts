@@ -16,7 +16,7 @@ export const mapToResponse = (
   appointment: BooklyAppointment,
   services: ServicesNormalized
 ): Appointment => {
-  const serviceId = appointment.service_id.id;
+  const serviceId = appointment.service_id?.id;
 
   return {
     id: appointment.id,
@@ -29,9 +29,9 @@ export const mapToResponse = (
       ? appointment.customer_appointment.status
       : "no-appointment",
     service: {
-      id: services[serviceId].id,
-      title: services[serviceId].title,
-      price: services[serviceId].price,
+      id: services[serviceId]?.id,
+      title: services[serviceId]?.title,
+      price: services[serviceId]?.price,
     },
     payment_type: appointment.payment_details?.type,
     physician: {
