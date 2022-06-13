@@ -2,8 +2,9 @@ import path from "path";
 import { sub, format } from "date-fns";
 
 const getInvoiceSentEndpoint = () => {
-  const date = sub(new Date(), { days: 1 });
+  const date = sub(new Date(), { weeks: 1 });
   const since = format(date, "yyyy-MM-dd");
+  console.log(`/invoices?since=${since}&count=-1`);
   return `/invoices?since=${since}&count=-1`;
 };
 
