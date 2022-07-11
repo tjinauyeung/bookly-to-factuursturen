@@ -1,17 +1,5 @@
 import { Appointment, BooklyAppointment, ServicesNormalized } from "./types";
 
-interface Location {
-  [id: string]: string;
-}
-
-const locations: Location = {
-  "1": "Koppestokstraat 87, Haarlem",
-  "2": "Overschiestraat 59, Amsterdam",
-  "3": "Ouddiemerlaan 104, Diemen",
-  "4": "Oosterkerkstraat 1, Leiden",
-  "5": "Kanaalweg 33, Capelle aan den IJssel",
-};
-
 export const mapToResponse = (
   appointment: BooklyAppointment,
   services: ServicesNormalized
@@ -24,7 +12,6 @@ export const mapToResponse = (
     updated_at: appointment.updated_at,
     start_date: appointment.start_date,
     end_date: appointment.end_date,
-    location: locations[appointment.location_id] || "",
     status: appointment.customer_appointment
       ? appointment.customer_appointment.status
       : "no-appointment",

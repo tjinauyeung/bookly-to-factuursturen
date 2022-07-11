@@ -63,7 +63,6 @@ export const createInvoice = async (
       reference: {
         line1: `Afspraak ID: ${appointment.id}`,
         line2: `Arts: ${appointment.physician.full_name}`,
-        line3: `Tijd en locatie: ${time} - ${appointment.location}`,
       },
       lines: [
         {
@@ -80,13 +79,18 @@ export const createInvoice = async (
     };
 
     if (appointment.discount) {
-      console.log(`Discount found. ${JSON.stringify({appointmentId: appointment.id, discount: appointment.discount})}`);
+      console.log(
+        `Discount found. ${JSON.stringify({
+          appointmentId: appointment.id,
+          discount: appointment.discount,
+        })}`
+      );
       json.lines.push({
         amount: 1,
         description: `Kortings coupon van ${formatPrice(appointment.discount)}`,
         price: (appointment.discount * -1).toFixed(2),
         tax_rate: 0,
-      })
+      });
     }
 
     console.log(
@@ -114,7 +118,7 @@ export const getSavedInvoices = (): Promise<SavedInvoice[]> => {
   console.log("Retrieving saved invoices...");
   return got
     .get(ENDPOINTS.invoicesSaved(), getOptions() as any)
-    .then((res) => (res.body as unknown) as SavedInvoice[])
+    .then((res) => res.body as unknown as SavedInvoice[])
     .catch((err) => {
       console.error(`Failed to get saved invoices:`, err);
       throw new Error(err);
@@ -125,7 +129,7 @@ export const getSentInvoices = (): Promise<Invoice[]> => {
   console.log("Retrieving sent invoices...");
   return got
     .get(ENDPOINTS.invoicesSent(), getOptions() as any)
-    .then((res) => (res.body as unknown) as Invoice[])
+    .then((res) => res.body as unknown as Invoice[])
     .catch((err) => {
       console.error(`Failed to get sent invoices:`, err);
       throw new Error(err);
@@ -139,7 +143,7 @@ export const deleteSentInvoices = (id: string): Promise<Invoice[]> => {
       ...(getOptions() as any),
       responseType: "text",
     })
-    .then((res) => (res.body as unknown) as Invoice[])
+    .then((res) => res.body as unknown as Invoice[])
     .catch((err) => {
       console.error(
         `Failed to delete sent invoice with id ${id}. Reason:`,

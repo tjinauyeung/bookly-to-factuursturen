@@ -57,7 +57,6 @@ export interface Appointment {
   updated_at: string;
   start_date: string;
   end_date: string;
-  location: string;
   service: {
     id: string;
     title: string;
